@@ -1,4 +1,3 @@
-from google.adk.agents.llm_agent import Agent
 from trello import TrelloClient
 from dotenv import load_dotenv
 from datetime import datetime
@@ -6,7 +5,6 @@ import os
 
 load_dotenv()
 
-# Suas credenciais
 API_KEY = os.getenv('TRELLO_API_KEY')
 API_SECRET = os.getenv('TRELLO_API_SECRET')
 TOKEN = os.getenv('TRELLO_TOKEN')
@@ -26,16 +24,13 @@ def adicionar_tarefa(nome_da_task: str, descricao_da_task: str, due_date: str):
     )
     
     client.list_boards()
-    # Obter o board (você precisa do ID ou nome do board)
     boards = client.list_boards()
     meu_board = [b for b in boards if b.name == 'DIO'][0]
 
-    # Obter a lista onde quer adicionar o card
     listas = meu_board.list_lists()
 
     minha_lista = [l for l in listas if l.name.upper() == 'TO DO' or l.name.upper()== 'A FAZER'][0]
     
-    # Criar o card (task)
     minha_lista.add_card(
         name=nome_da_task,
         desc=descricao_da_task,
@@ -91,7 +86,6 @@ def mudar_status_tarefa(nome_da_task: str, novo_status: str) -> str:
         meu_board = [b for b in boards if b.name == 'DIO'][0]
         listas = meu_board.list_lists()
                        
-        # Mapear status para listas
         status_map = {
             "a fazer": "A FAZER",
             "em andamento": "EM ANDAMENTO",
@@ -101,18 +95,16 @@ def mudar_status_tarefa(nome_da_task: str, novo_status: str) -> str:
         nome_lista_destino = status_map.get(novo_status.lower())
 
         if not nome_lista_destino:
-            return f"❌ Status inválido. Use: 'a fazer', 'em andamento' ou 'concluido'"
+            return f" Status inválido. Use: 'a fazer', 'em andamento' ou 'concluido'"
         
-        # Encontrar lista de destino
         lista_destino = next(
             (l for l in listas if l.name.upper() == nome_lista_destino.upper()), 
             None
         )
 
         if not lista_destino:
-            return f"❌ Lista '{nome_lista_destino}' não encontrada no board"
+            return f" Lista '{nome_lista_destino}' não encontrada no board"
         
-         # Buscar card em todas as listas
         card_encontrado = None
         lista_origem = None
 
@@ -127,13 +119,12 @@ def mudar_status_tarefa(nome_da_task: str, novo_status: str) -> str:
                 break
         
         if not card_encontrado:
-            return f"❌ Card '{nome_da_task}' não encontrado"
+            return f" Card '{nome_da_task}' não encontrado"
         
-        # Mover
         card_encontrado.change_list(lista_destino.id)
-        return f"✅ '{nome_da_task}': {lista_origem.name} → {lista_destino.name}"
+        return f" '{nome_da_task}': {lista_origem.name} → {lista_destino.name}"
     except Exception as e:
-        return f"❌ Erro: {str(e)}"
+        return f" Erro: {str(e)}"
 
 root_agent = Agent(
     model='gemini-2.5-flash',
